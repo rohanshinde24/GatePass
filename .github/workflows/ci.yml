@@ -1,0 +1,48 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  service:
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install PostgreSQL
+        run: |
+          brew install postgresql@17
+          echo "$(brew --prefix postgresql@17)/bin" >> "$GITHUB_PATH"
+      - name: Build and unit tests
+        run: swift test --parallel --jobs 3
+      - name: Start isolated development database
+        run: sh scripts/dev-db.sh
+      - name: Organizer and scanner workflows
+        run: python3 scripts/e2e.py
+      - name: Independent HTTP concurrency and recovery
+        run: python3 scripts/acceptance.py
+
+  scanner:
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install project generator
+        run: brew install xcodegen
+      - name: Generate scanner project
+        run: xcodegen generate --spec ios/GatePassScanner/project.yml
+      - name: Build iOS scanner for simulator
+        run: >-
+          xcodebuild -project ios/GatePassScanner/GatePassScanner.xcodeproj
+          -scheme GatePassScanner -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath .gatepass/DerivedData CODE_SIGNING_ALLOWED=NO build

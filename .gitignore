@@ -1,0 +1,15 @@
+.local-docs/
+AGENTS.md
+RULES.md
+.build/
+.swiftpm/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.xcuserstate
+xcuserdata/
+.batchdock/
+.gatepass/
+__pycache__/
+*.py[cod]

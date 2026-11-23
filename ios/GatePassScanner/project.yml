@@ -1,0 +1,29 @@
+name: GatePassScanner
+options:
+  bundleIdPrefix: dev.rohanshinde24
+packages:
+  GatePass:
+    path: ../..
+targets:
+  GatePassScanner:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources: [Sources]
+    dependencies:
+      - package: GatePass
+        product: GatePassProtocol
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.rohanshinde24.GatePassScanner
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: Scan staff setup codes and attendee tickets.
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        CODE_SIGN_STYLE: Automatic
+schemes:
+  GatePassScanner:
+    build:
+      targets:
+        GatePassScanner: all
