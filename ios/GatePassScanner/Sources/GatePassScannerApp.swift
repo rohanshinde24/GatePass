@@ -256,6 +256,8 @@ struct QRScanner: UIViewControllerRepresentable {
 
 final class CameraController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
   private let session = AVCaptureSession()
+  private let sessionQueue = DispatchQueue(
+    label: "dev.rohanshinde24.gatepass.camera", qos: .userInitiated)
   private let onCode: (String) -> Void
   private var preview: AVCaptureVideoPreviewLayer?
   init(onCode: @escaping (String) -> Void) {
@@ -278,7 +280,7 @@ final class CameraController: UIViewController, AVCaptureMetadataOutputObjectsDe
     preview.videoGravity = .resizeAspectFill
     view.layer.addSublayer(preview)
     self.preview = preview
-    DispatchQueue.global(qos: .userInitiated).async { [session] in session.startRunning() }
+    sessionQueue.async { [session] in session.startRunning() }
   }
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
@@ -286,7 +288,7 @@ final class CameraController: UIViewController, AVCaptureMetadataOutputObjectsDe
   }
   override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
-    DispatchQueue.global(qos: .userInitiated).async { [session] in session.stopRunning() }
+    sessionQueue.async { [session] in session.stopRunning() }
   }
   func metadataOutput(
     _ output: AVCaptureMetadataOutput, didOutput objects: [AVMetadataObject],
